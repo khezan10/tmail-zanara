@@ -1,0 +1,10 @@
+name = "tmail-zanara"
+main = "email-worker.js"
+compatibility_date = "2025-01-01"
+
+# Isi lewat `wrangler secret put`, jangan tulis token di file ini.
+# TMAIL_INBOUND_URL    = "https://tmail.mzg.my.id/api/inbound"
+# TMAIL_INBOUND_SECRET = "<INBOUND_SECRET dari Vercel>"
+
+[vars]
+TMAIL_INBOUND_URL = "https://tmail.mzg.my.id/api/inbound"
