@@ -184,6 +184,17 @@ select.field {
   letter-spacing: 0.06em;
 }
 
+.name-note {
+  margin: 10px 0 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+.name-note span {
+  color: var(--lime);
+}
+
 .list {
   list-style: none;
   margin: 16px 0 0;

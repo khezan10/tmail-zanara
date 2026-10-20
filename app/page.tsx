@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { randomIdentity, type Identity } from "@/lib/names";
 
 type Domain = { domain: string; status: string; verifiedAt?: string };
 type Message = {
@@ -43,16 +44,6 @@ const SUB_LINES = [
 
 const BOOT_WORDS = ["booting tmail", "loading fonts", "syncing inbox", "ready"];
 
-const ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
-
-function randomLocal(length = 10): string {
-  let out = "";
-  const bytes = new Uint8Array(length);
-  crypto.getRandomValues(bytes);
-  for (let i = 0; i < length; i += 1) out += ALPHABET[bytes[i] % ALPHABET.length];
-  return out;
-}
-
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const min = Math.round(diff / 60000);
@@ -79,6 +70,7 @@ export default function Home() {
   const [regResult, setRegResult] = useState<RegisterResult | null>(null);
   const [regError, setRegError] = useState("");
   const poll = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [seed, setSeed] = useState<Identity | null>(null);
 
   const [entered, setEntered] = useState(false);
   const bootRef = useRef<HTMLDivElement>(null);
@@ -94,6 +86,9 @@ export default function Home() {
     [domains]
   );
 
+  // Nama yang terlihat: ketikan user, atau nama acak dari seed.
+  const shownLocal = local || seed?.local || "";
+
   const loadDomains = useCallback(async () => {
     try {
       const res = await fetch("/api/domains");
@@ -106,11 +101,22 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- nilai awal acak setelah fetch, bukan render berantai
+    let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- nama acak sekali setelah fetch domain
     void loadDomains().then(() => {
-      setLocal((value) => value || randomLocal());
+      if (cancelled) return;
+      setSeed((current) => current ?? randomIdentity());
     });
+    return () => {
+      cancelled = true;
+    };
   }, [loadDomains]);
+
+  function newIdentity() {
+    setLocal("");
+    setSeed(randomIdentity());
+    setError("");
+  }
 
   const loadMessages = useCallback(async (addr: string) => {
     try {
@@ -308,7 +314,7 @@ export default function Home() {
   }, [entered]);
 
   function openInbox() {
-    const raw = local.trim().toLowerCase();
+    const raw = shownLocal.trim().toLowerCase();
     if (!raw) {
       setError("Enter a name first.");
       return;
@@ -455,8 +461,11 @@ export default function Home() {
         <div className="row">
           <input
             className="field"
-            value={local}
-            onChange={(e) => setLocal(e.target.value)}
+            value={shownLocal}
+            onChange={(e) => {
+              setLocal(e.target.value);
+              setSeed(null);
+            }}
             placeholder="your-name"
             aria-label="Address name"
             autoComplete="off"
@@ -481,12 +490,18 @@ export default function Home() {
           <button
             className="btn ghost small"
             type="button"
-            onClick={() => setLocal(randomLocal())}
+            onClick={newIdentity}
             title="Random name"
           >
             random
           </button>
         </div>
+
+        {seed && (
+          <p className="name-note">
+            <span>{seed.word}</span> — {seed.origin}: {seed.meaning}
+          </p>
+        )}
 
         {error && <p className="error">{error}</p>}
 

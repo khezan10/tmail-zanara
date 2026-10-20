@@ -15,6 +15,9 @@ Live: <https://tmail.mzg.my.id> · docs: <https://tmail.mzg.my.id/docs>
 - **Inbound via Cloudflare Email Routing** — no SMTP server to maintain; a small
   Email Worker forwards each message to `/api/inbound`.
 - **Live inbox** — polling every 6 seconds, HTML rendered inside a sandboxed iframe.
+- **Meaningful random names** — every new inbox is named from a Greek root (philosophy, science,
+  myth, place) plus a 10-character code, e.g. `anthropos_aiue983hnf`, with the etymology shown
+  under the field.
 - **Nightly wipe** — Vercel Cron calls `/api/cron/purge` at 01:00 WIB and deletes
   every stored message.
 - **Open** — no login. Inboxes are addressed by `name@domain`; anyone with the
