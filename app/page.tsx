@@ -499,7 +499,16 @@ export default function Home() {
 
         {seed && (
           <p className="name-note">
-            <span>{seed.word}</span> — {seed.origin}: {seed.meaning}
+            <span>{seed.word}</span>
+            {seed.epithet ? (
+              <>
+                {" · "}
+                <span>{seed.epithet.word}</span>
+              </>
+            ) : null}
+            {" — "}
+            {seed.origin}: {seed.meaning}
+            {seed.epithet ? ` / ${seed.epithet.meaning}` : ""}
           </p>
         )}
 

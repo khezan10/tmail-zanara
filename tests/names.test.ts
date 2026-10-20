@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { findSeed, NAME_SEEDS, randomIdentity, randomSuffix } from "../lib/names";
+import {
+  EPITHETS,
+  findSeed,
+  NAME_SEEDS,
+  randomIdentity,
+  randomSuffix,
+} from "../lib/names";
 
-const LOCAL_RE = /^[a-z]+_[a-z0-9]{10}$/;
+const LOCAL_RE = /^[a-z]+(?:_[a-z]+)?_[a-z0-9]{10}$/;
 
 describe("randomSuffix", () => {
   it("returns 10 lowercase alphanumerics", () => {
@@ -16,8 +22,8 @@ describe("randomSuffix", () => {
 });
 
 describe("NAME_SEEDS", () => {
-  it("has a decent catalogue", () => {
-    expect(NAME_SEEDS.length).toBeGreaterThan(100);
+  it("has a large enough catalogue", () => {
+    expect(NAME_SEEDS.length).toBeGreaterThan(190);
   });
 
   it("is free of duplicates and has full metadata", () => {
@@ -29,21 +35,32 @@ describe("NAME_SEEDS", () => {
       expect(seed.origin.length).toBeGreaterThan(2);
     }
   });
+});
 
-  it("only uses characters that are valid in an email local part", () => {
-    for (const seed of NAME_SEEDS) {
-      expect(seed.word.length).toBeLessThanOrEqual(52);
+describe("EPITHETS", () => {
+  it("has enough modifiers and no duplicates", () => {
+    expect(EPITHETS.length).toBeGreaterThan(50);
+    const words = EPITHETS.map((s) => s.word);
+    expect(new Set(words).size).toBe(words.length);
+  });
+
+  it("only contains valid lowercase words", () => {
+    for (const epithet of EPITHETS) {
+      expect(epithet.word).toMatch(/^[a-z]+$/);
+      expect(epithet.meaning.length).toBeGreaterThan(2);
     }
   });
 });
 
 describe("randomIdentity", () => {
-  it("builds word_suffix", () => {
-    const id = randomIdentity();
-    expect(id.local).toBe(`${id.word}_${id.suffix}`);
-    expect(id.local).toMatch(LOCAL_RE);
-    expect(id.meaning.length).toBeGreaterThan(0);
-    expect(id.origin.length).toBeGreaterThan(0);
+  it("builds word_suffix or word_epithet_suffix", () => {
+    for (let i = 0; i < 50; i += 1) {
+      const id = randomIdentity();
+      const base = id.epithet ? `${id.word}_${id.epithet.word}` : id.word;
+      expect(id.local).toBe(`${base}_${id.suffix}`);
+      expect(id.local).toMatch(LOCAL_RE);
+      expect(id.local.length).toBeLessThanOrEqual(64);
+    }
   });
 
   it("accepts a specific seed", () => {
@@ -51,12 +68,20 @@ describe("randomIdentity", () => {
     expect(seed).toBeDefined();
     const id = randomIdentity(seed);
     expect(id.word).toBe("anthropos");
-    expect(id.local.startsWith("anthropos_")).toBe(true);
-    expect(id.local).toMatch(/^anthropos_[a-z0-9]{10}$/);
+    expect(id.local.startsWith("anthropos")).toBe(true);
+    expect(id.local).toMatch(/^anthropos(?:_[a-z]+)?_[a-z0-9]{10}$/);
   });
 
-  it("matches the documented example shape", () => {
-    expect("anthropos_aiue983hnf").toMatch(LOCAL_RE);
+  it("produces thousands of distinct combinations", () => {
+    const seen = new Set<string>();
+    const bases = new Set<string>();
+    for (let i = 0; i < 2000; i += 1) {
+      const id = randomIdentity();
+      seen.add(id.local);
+      bases.add(id.epithet ? `${id.word}_${id.epithet.word}` : id.word);
+    }
+    expect(seen.size).toBeGreaterThan(1990);
+    expect(bases.size).toBeGreaterThan(500);
   });
 });
 
@@ -64,6 +89,7 @@ describe("findSeed", () => {
   it("finds by word and by full address", () => {
     expect(findSeed("logos")?.meaning).toBe("word, reason");
     expect(findSeed("logos_abc1234567")?.word).toBe("logos");
+    expect(findSeed("anthropos_eudaimon_abc1234567")?.word).toBe("anthropos");
   });
 
   it("returns undefined for unknown words", () => {

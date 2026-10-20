@@ -7,7 +7,11 @@ export type NameSeed = {
   origin: string;
 };
 
-export type Identity = NameSeed & { local: string; suffix: string };
+export type Identity = NameSeed & {
+  local: string;
+  suffix: string;
+  epithet?: NameSeed;
+};
 
 export const NAME_SEEDS: NameSeed[] = [
   // Filsafat & gagasan
@@ -185,6 +189,114 @@ export const NAME_SEEDS: NameSeed[] = [
   { word: "epikouros", meaning: "the garden of quiet joy", origin: "greek · philosophy" },
   { word: "zenon", meaning: "the porch of duty", origin: "greek · philosophy" },
   { word: "plotinos", meaning: "the ascent to the one", origin: "greek · philosophy" },
+
+  // Akar tambahan: biologi, fisika, geometri, bahasa
+  { word: "bios", meaning: "life", origin: "greek" },
+  { word: "zoe", meaning: "life", origin: "greek" },
+  { word: "thanatos", meaning: "death", origin: "greek · mythology" },
+  { word: "mitos", meaning: "thread", origin: "greek" },
+  { word: "chromos", meaning: "colour", origin: "greek" },
+  { word: "kytos", meaning: "cell, hollow", origin: "greek" },
+  { word: "opsis", meaning: "sight", origin: "greek" },
+  { word: "phone", meaning: "voice", origin: "greek" },
+  { word: "klima", meaning: "slope, inclination", origin: "greek" },
+  { word: "tropos", meaning: "turn, manner", origin: "greek" },
+  { word: "atmos", meaning: "vapour", origin: "greek" },
+  { word: "pelagos", meaning: "open sea", origin: "greek" },
+  { word: "limne", meaning: "lake", origin: "greek" },
+  { word: "oros", meaning: "mountain", origin: "greek" },
+  { word: "petra", meaning: "rock", origin: "greek" },
+  { word: "ammos", meaning: "sand", origin: "greek" },
+  { word: "gyros", meaning: "circle", origin: "greek" },
+  { word: "sphaira", meaning: "sphere", origin: "greek" },
+  { word: "konos", meaning: "cone", origin: "greek" },
+  { word: "kylindros", meaning: "cylinder", origin: "greek" },
+  { word: "gramme", meaning: "line", origin: "greek" },
+  { word: "stigme", meaning: "point", origin: "greek" },
+  { word: "epipedon", meaning: "plane surface", origin: "greek" },
+  { word: "stereon", meaning: "solid", origin: "greek" },
+  { word: "megethos", meaning: "magnitude", origin: "greek" },
+  { word: "plethos", meaning: "multitude", origin: "greek" },
+  { word: "onoma", meaning: "name", origin: "greek" },
+  { word: "rhema", meaning: "spoken word", origin: "greek" },
+  { word: "eikon", meaning: "image", origin: "greek" },
+  { word: "eidolon", meaning: "likeness", origin: "greek" },
+  { word: "skia", meaning: "shadow", origin: "greek" },
+  { word: "phantasma", meaning: "apparition", origin: "greek" },
+  { word: "oneiros", meaning: "dream", origin: "greek" },
+  { word: "hypnos", meaning: "sleep", origin: "greek · mythology" },
+  { word: "mnemosyne", meaning: "memory", origin: "greek · mythology" },
+  { word: "lethe", meaning: "forgetfulness", origin: "greek · mythology" },
+  { word: "anamnesis", meaning: "recollection", origin: "greek" },
+  { word: "episteme", meaning: "knowledge", origin: "greek" },
+  { word: "doxa", meaning: "opinion", origin: "greek" },
+  { word: "ergon", meaning: "work", origin: "greek" },
+  { word: "poiema", meaning: "made thing", origin: "greek" },
+  { word: "holon", meaning: "the whole", origin: "greek" },
+];
+
+// Kata sifat / julukan Yunani untuk mengombinasikan nama (mis. anthropos_eudaimon).
+export const EPITHETS: NameSeed[] = [
+  { word: "eudaimon", meaning: "flourishing, blessed", origin: "greek · epithet" },
+  { word: "sophos", meaning: "wise", origin: "greek · epithet" },
+  { word: "megas", meaning: "great", origin: "greek · epithet" },
+  { word: "mikros", meaning: "small", origin: "greek · epithet" },
+  { word: "neos", meaning: "new, young", origin: "greek · epithet" },
+  { word: "palaios", meaning: "ancient", origin: "greek · epithet" },
+  { word: "kalos", meaning: "beautiful", origin: "greek · epithet" },
+  { word: "agathos", meaning: "good", origin: "greek · epithet" },
+  { word: "oxys", meaning: "sharp", origin: "greek · epithet" },
+  { word: "barys", meaning: "heavy", origin: "greek · epithet" },
+  { word: "thermos", meaning: "warm", origin: "greek · epithet" },
+  { word: "psychros", meaning: "cold", origin: "greek · epithet" },
+  { word: "lampros", meaning: "bright", origin: "greek · epithet" },
+  { word: "skoteinos", meaning: "dark", origin: "greek · epithet" },
+  { word: "tachys", meaning: "swift", origin: "greek · epithet" },
+  { word: "bradys", meaning: "slow", origin: "greek · epithet" },
+  { word: "ischyros", meaning: "strong", origin: "greek · epithet" },
+  { word: "holos", meaning: "whole", origin: "greek · epithet" },
+  { word: "enantios", meaning: "opposite", origin: "greek · epithet" },
+  { word: "homoios", meaning: "similar", origin: "greek · epithet" },
+  { word: "heteros", meaning: "other", origin: "greek · epithet" },
+  { word: "autos", meaning: "self", origin: "greek · epithet" },
+  { word: "koinos", meaning: "common", origin: "greek · epithet" },
+  { word: "idios", meaning: "one's own", origin: "greek · epithet" },
+  { word: "eleutheros", meaning: "free", origin: "greek · epithet" },
+  { word: "sophron", meaning: "temperate", origin: "greek · epithet" },
+  { word: "andreios", meaning: "brave", origin: "greek · epithet" },
+  { word: "dikaios", meaning: "just", origin: "greek · epithet" },
+  { word: "philos", meaning: "loving", origin: "greek · epithet" },
+  { word: "polymetis", meaning: "of many counsels", origin: "greek · epithet" },
+  { word: "polymechanos", meaning: "of many devices", origin: "greek · epithet" },
+  { word: "hyperion", meaning: "high above", origin: "greek · epithet" },
+  { word: "ouranios", meaning: "heavenly", origin: "greek · epithet" },
+  { word: "thalassios", meaning: "of the sea", origin: "greek · epithet" },
+  { word: "oreios", meaning: "of the mountains", origin: "greek · epithet" },
+  { word: "agrios", meaning: "wild", origin: "greek · epithet" },
+  { word: "hemeros", meaning: "tame, cultivated", origin: "greek · epithet" },
+  { word: "theios", meaning: "divine", origin: "greek · epithet" },
+  { word: "anthropinos", meaning: "human", origin: "greek · epithet" },
+  { word: "kosmikos", meaning: "of the world", origin: "greek · epithet" },
+  { word: "mystikos", meaning: "hidden", origin: "greek · epithet" },
+  { word: "alethes", meaning: "true", origin: "greek · epithet" },
+  { word: "saphes", meaning: "clear", origin: "greek · epithet" },
+  { word: "aphanes", meaning: "unseen", origin: "greek · epithet" },
+  { word: "kryptos", meaning: "hidden", origin: "greek · epithet" },
+  { word: "phaneros", meaning: "visible", origin: "greek · epithet" },
+  { word: "logikos", meaning: "rational", origin: "greek · epithet" },
+  { word: "physikos", meaning: "natural", origin: "greek · epithet" },
+  { word: "ethikos", meaning: "of character", origin: "greek · epithet" },
+  { word: "poetikos", meaning: "creative", origin: "greek · epithet" },
+  { word: "kritikos", meaning: "able to judge", origin: "greek · epithet" },
+  { word: "praktikos", meaning: "practical", origin: "greek · epithet" },
+  { word: "theoretikos", meaning: "contemplative", origin: "greek · epithet" },
+  { word: "mathematikos", meaning: "fond of learning", origin: "greek · epithet" },
+  { word: "astronomos", meaning: "star-ordering", origin: "greek · epithet" },
+  { word: "geometres", meaning: "earth-measurer", origin: "greek · epithet" },
+  { word: "iatros", meaning: "healer", origin: "greek · epithet" },
+  { word: "mythopoios", meaning: "story-maker", origin: "greek · epithet" },
+  { word: "kosmopolites", meaning: "citizen of the world", origin: "greek · epithet" },
+  { word: "autochthon", meaning: "of the soil itself", origin: "greek · epithet" },
 ];
 
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -207,9 +319,12 @@ function randomIndex(max: number): number {
 
 /** `word_suffix` + makna etimologisnya. */
 export function randomIdentity(seed?: NameSeed): Identity {
-  const picked = seed ?? NAME_SEEDS[randomIndex(NAME_SEEDS.length)];
+  const root = seed ?? NAME_SEEDS[randomIndex(NAME_SEEDS.length)];
   const suffix = randomSuffix();
-  return { ...picked, suffix, local: `${picked.word}_${suffix}` };
+  // ~55% memakai epithet: 200+ akar x 60 julukan = >12.000 basis, plus sufiks 36^10.
+  const epithet = randomIndex(100) < 55 ? EPITHETS[randomIndex(EPITHETS.length)] : undefined;
+  const base = epithet ? `${root.word}_${epithet.word}` : root.word;
+  return { ...root, suffix, epithet, local: `${base}_${suffix}` };
 }
 
 /** Cari seed berdasarkan kata (tanpa sufiks). */
