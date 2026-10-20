@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export const metadata = {
   title: "Domain setup — Tmail Zanara",
   description: "How to point your own domain at Tmail Zanara and receive mail in seconds.",
@@ -102,7 +104,7 @@ export default function Docs() {
       </section>
 
       <footer className="footer">
-        <a href="/">&lt; back to mailbox</a>
+        <Link href="/">&lt; back to mailbox</Link>
         <span>open source · MIT</span>
       </footer>
     </main>

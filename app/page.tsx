@@ -87,8 +87,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    loadDomains();
-    setLocal(randomLocal());
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- nilai awal acak setelah fetch, bukan render berantai
+    void loadDomains().then(() => {
+      setLocal((value) => value || randomLocal());
+    });
   }, [loadDomains]);
 
   const loadMessages = useCallback(async (addr: string) => {
@@ -107,9 +109,15 @@ export default function Home() {
 
   useEffect(() => {
     if (!address) return;
-    loadMessages(address);
-    poll.current = setInterval(() => loadMessages(address), 6000);
+    let cancelled = false;
+    const run = () => {
+      if (!cancelled) void loadMessages(address);
+    };
+    const kick = setTimeout(run, 0);
+    poll.current = setInterval(run, 6000);
     return () => {
+      cancelled = true;
+      clearTimeout(kick);
       if (poll.current) clearInterval(poll.current);
     };
   }, [address, loadMessages]);

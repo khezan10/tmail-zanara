@@ -2,8 +2,8 @@
 // lalu meneruskannya ke Tmail Zanara (Vercel) sebagai JSON.
 import PostalMime from "postal-mime";
 
-export default {
-  async email(message, env, ctx) {
+const worker = {
+  async email(message, env) {
     const parsed = await PostalMime.parse(new Response(message.raw));
 
     const payload = {
@@ -30,3 +30,5 @@ export default {
     }
   },
 };
+
+export default worker;
