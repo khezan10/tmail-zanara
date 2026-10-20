@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import PostalMime from "postal-mime";
 import { getDb } from "@/lib/mongodb";
 import { normalizeAddress, splitAddress } from "@/lib/validate";
 import type { DomainDoc, MessageDoc } from "@/lib/types";
@@ -11,6 +12,8 @@ type Inbound = {
   subject?: string;
   text?: string;
   html?: string;
+  /** Raw RFC822 message from the Email Worker. Parsed server-side. */
+  raw?: string;
 };
 
 /**
@@ -50,14 +53,29 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "DOMAIN_NOT_REGISTERED" }, { status: 404 });
     }
 
+    let subject = body.subject || "";
+    let text = body.text || "";
+    let html = body.html || "";
+
+    if (body.raw) {
+      try {
+        const parsed = await PostalMime.parse(body.raw);
+        subject = subject || parsed.subject || "";
+        text = text || parsed.text || "";
+        html = html || parsed.html || "";
+      } catch {
+        // Biarkan kosong; email tetap tersimpan dengan envelope saja.
+      }
+    }
+
     const doc: MessageDoc = {
       address,
       domain: parts.domain,
       from: normalizeAddress(body.from || "unknown"),
       to: address,
-      subject: (body.subject || "(no subject)").slice(0, 400),
-      text: (body.text || "").slice(0, MAX_BODY),
-      html: (body.html || "").slice(0, MAX_BODY),
+      subject: (subject || "(no subject)").slice(0, 400),
+      text: text.slice(0, MAX_BODY),
+      html: html.slice(0, MAX_BODY),
       receivedAt: new Date(),
     };
 

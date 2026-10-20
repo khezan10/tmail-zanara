@@ -22,10 +22,12 @@ sender ──▶ MX route1.mx.cloudflare.net ──▶ Cloudflare Email Routing
 3. Copy `worker/email-worker.js` and `worker/wrangler.toml` into a folder, then:
 
    ```bash
-   npm i -D wrangler postal-mime
    npx wrangler deploy
    npx wrangler secret put TMAIL_INBOUND_SECRET   # = INBOUND_SECRET from Vercel
    ```
+
+   The worker has no npm dependencies: it forwards the raw message and the
+   server parses the MIME (so the worker stays tiny and deploys in one file).
 
    `TMAIL_INBOUND_URL` is already set in `wrangler.toml`
    (`https://tmail.mzg.my.id/api/inbound`).
