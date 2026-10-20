@@ -25,7 +25,6 @@ jobs:
           url=$(printf '%s' "$data" | jq -r '.deployments[0].url // ""')
           echo "latest deployment: $state ($url)"
           echo "state=$state" >> "$GITHUB_OUTPUT"
-          echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Probe production health
         id: health
@@ -36,19 +35,21 @@ jobs:
           echo "health status: $code"
           echo "status=$code" >> "$GITHUB_OUTPUT"
 
-      - name: Redeploy when the build failed or the app is down
+      - name: Trigger a fresh production deployment
         if: >
           steps.inspect.outputs.state == 'ERROR' ||
           steps.inspect.outputs.state == 'CANCELED' ||
           steps.health.outputs.status == '000' ||
           steps.health.outputs.status == '500'
         env:
-          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
           set -euo pipefail
-          if [ -z "${HOOK:-}" ]; then
-            echo "VERCEL_DEPLOY_HOOK is not configured"; exit 1
-          fi
-          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$HOOK")
-          echo "deploy hook responded $code"
+          body='{"name":"tmail-zanara","project":"'"$VERCEL_PROJECT_ID"'","target":"production","gitSource":{"type":"github","ref":"main","repoId":1426964645}}'
+          code=$(curl -sS -o /tmp/deploy.json -w '%{http_code}' -X POST \
+            -H "Authorization: Bearer $VERCEL_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "$body" https://api.vercel.com/v13/deployments)
+          head -c 300 /tmp/deploy.json; echo
           test "$code" -ge 200 -a "$code" -lt 300

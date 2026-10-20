@@ -1,24 +1,41 @@
 name: dependabot auto-merge
 
-on: pull_request
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  auto-merge:
-    if: github.event.pull_request.user.login == 'dependabot[bot]'
+  merge:
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      startsWith(github.event.workflow_run.head_branch, 'dependabot/')
     runs-on: ubuntu-latest
     steps:
-      - name: Read dependency metadata
-        id: meta
-        uses: dependabot/fetch-metadata@v3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Enable auto-merge (squash)
-        run: gh pr merge --auto --squash "$PR_URL"
+      - name: Merge the green dependabot PR (minor/patch only)
         env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH: ${{ github.event.workflow_run.head_branch }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          pr=$(gh pr list --repo "$REPO" --head "$BRANCH" --state open --json number,title --jq '.[0]')
+          if [ -z "$pr" ] || [ "$pr" = "null" ]; then
+            echo "no open PR for $BRANCH"; exit 0
+          fi
+          number=$(printf '%s' "$pr" | jq -r '.number')
+          title=$(printf '%s' "$pr" | jq -r '.title')
+          echo "PR #$number: $title"
+          # Major bumps stay open for review.
+          if printf '%s' "$title" | grep -qiE 'bump .* from [0-9]+\.'; then
+            old_major=$(printf '%s' "$title" | sed -nE 's/.* from ([0-9]+)\..*/\1/p')
+            new_major=$(printf '%s' "$title" | sed -nE 's/.* to ([0-9]+)\..*/\1/p')
+            if [ -n "$old_major" ] && [ -n "$new_major" ] && [ "$old_major" != "$new_major" ]; then
+              echo "major bump — leaving PR open for review"; exit 0
+            fi
+          fi
+          gh pr merge "$number" --repo "$REPO" --squash --delete-branch

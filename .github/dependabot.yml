@@ -13,9 +13,12 @@ updates:
         update-types:
           - minor
           - patch
+    # Major upgrades need a human: dev tool majors (TypeScript, ESLint) and
+    # framework majors routinely break builds.
     ignore:
-      - dependency-name: "next"
-        update-types: ["version-update:semver-major"]
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
 
   - package-ecosystem: github-actions
     directory: "/"
@@ -25,3 +28,7 @@ updates:
       actions:
         patterns:
           - "*"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-major
