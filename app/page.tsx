@@ -33,6 +33,16 @@ const ERROR_TEXT: Record<string, string> = {
   INVALID_ADDRESS: "Address looks invalid.",
 };
 
+const TITLE = "TMAIL.ZANARA";
+
+const SUB_LINES = [
+  "Disposable inboxes on domains you own. No signup, no password, open source.",
+  "Every message is wiped at 01:00 WIB, so inboxes never pile up.",
+  "Add your domain with one TXT record and start receiving mail in minutes.",
+];
+
+const BOOT_WORDS = ["booting tmail", "loading fonts", "syncing inbox", "ready"];
+
 const ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
 
 function randomLocal(length = 10): string {
@@ -69,6 +79,15 @@ export default function Home() {
   const [regResult, setRegResult] = useState<RegisterResult | null>(null);
   const [regError, setRegError] = useState("");
   const poll = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const [entered, setEntered] = useState(false);
+  const bootRef = useRef<HTMLDivElement>(null);
+  const pctRef = useRef<HTMLSpanElement>(null);
+  const wordRef = useRef<HTMLSpanElement>(null);
+  const barRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const subRef = useRef<HTMLParagraphElement>(null);
+  const revealRefs = useRef<Array<HTMLElement | null>>([]);
 
   const activeDomains = useMemo(
     () => domains.filter((d) => d.status === "active").map((d) => d.domain),
@@ -121,6 +140,172 @@ export default function Home() {
       if (poll.current) clearInterval(poll.current);
     };
   }, [address, loadMessages]);
+
+  // Loader ala shortlink: progres nyata (font + waktu minimum), lalu fade keluar.
+  useEffect(() => {
+    const loader = bootRef.current;
+    const pctEl = pctRef.current;
+    const wordEl = wordRef.current;
+    const barEl = barRef.current;
+    if (!loader || !pctEl || !wordEl || !barEl) {
+      setEntered(true);
+      return;
+    }
+
+    let wi = 0;
+    const wordTimer = setInterval(() => {
+      wi = Math.min(wi + 1, BOOT_WORDS.length - 1);
+      wordEl.textContent = BOOT_WORDS[wi];
+    }, 620);
+
+    let fontReady = false;
+    let minTime = false;
+    let displayed = 0;
+    let done = false;
+    let raf = 0;
+    const timers: { hardStop?: ReturnType<typeof setTimeout> } = {};
+
+    const minTimer = setTimeout(() => {
+      minTime = true;
+    }, 1000);
+
+    if (typeof document !== "undefined" && document.fonts) {
+      document.fonts.ready
+        .then(() => {
+          fontReady = true;
+        })
+        .catch(() => {
+          fontReady = true;
+        });
+    } else {
+      fontReady = true;
+    }
+
+    const target = () => ((fontReady ? 1 : 0) + (minTime ? 1 : 0)) / 2;
+
+    const finish = () => {
+      if (done) return;
+      done = true;
+      clearInterval(wordTimer);
+      clearTimeout(minTimer);
+      if (timers.hardStop) clearTimeout(timers.hardStop);
+      pctEl.textContent = "100%";
+      barEl.style.width = "100%";
+      loader.style.transition = "opacity .5s ease";
+      loader.style.opacity = "0";
+      setTimeout(() => setEntered(true), 480);
+    };
+
+    // Jaring pengaman: rAF melambat saat tab tidak aktif.
+    timers.hardStop = setTimeout(() => {
+      fontReady = true;
+      minTime = true;
+      finish();
+    }, 2400);
+
+    const tick = () => {
+      displayed += (target() - displayed) * 0.14;
+      if (target() >= 1) displayed = Math.min(1, displayed + 0.05);
+      pctEl.textContent = `${Math.round(displayed * 100)}%`;
+      barEl.style.width = `${Math.round(displayed * 100)}%`;
+      if (target() < 1 || displayed < 0.995) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      finish();
+    };
+    raf = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      clearInterval(wordTimer);
+      clearTimeout(minTimer);
+      if (timers.hardStop) clearTimeout(timers.hardStop);
+    };
+  }, []);
+
+  // Entrance: huruf naik + unblur bertahap, lalu kartu menyusul.
+  useEffect(() => {
+    if (!entered) return;
+    const title = titleRef.current;
+    if (title) {
+      const chars = Array.from(title.querySelectorAll<HTMLElement>(".ch"));
+      chars.forEach((el) => {
+        el.style.opacity = "0";
+        el.style.filter = "blur(8px)";
+        el.style.transform = "translateY(22px)";
+        el.style.transition = "none";
+      });
+      requestAnimationFrame(() => {
+        chars.forEach((el, i) => {
+          el.style.transition =
+            "opacity .7s ease, filter .7s ease, transform .7s cubic-bezier(.23,1,.32,1)";
+          el.style.transitionDelay = `${0.05 + i * 0.045}s`;
+          el.style.opacity = "1";
+          el.style.filter = "blur(0)";
+          el.style.transform = "translateY(0)";
+        });
+      });
+      chars.forEach((el) => {
+        el.style.textShadow = "0 0 10px rgba(180,255,43,0.22)";
+        el.addEventListener("pointerenter", () => {
+          el.animate(
+            [
+              { transform: "translateY(0px)" },
+              { transform: "translateY(-18px)" },
+              { transform: "translateY(0px)" },
+            ],
+            { duration: 520, easing: "cubic-bezier(.23,1,.32,1)" }
+          );
+        });
+      });
+    }
+    revealRefs.current.forEach((el, i) => {
+      if (!el) return;
+      el.style.transitionDelay = `${0.12 + i * 0.12}s`;
+      el.classList.add("in");
+    });
+  }, [entered]);
+
+  // Sub berganti kalimat: ketik → tahan → hapus, kursor ▌ berkedip.
+  useEffect(() => {
+    if (!entered) return;
+    const sub = subRef.current;
+    const node = sub?.firstChild;
+    if (!sub || !node || node.nodeType !== Node.TEXT_NODE) return;
+    const text = node as Text;
+    let li = 0;
+    let ci = SUB_LINES[0].length;
+    let phase: "hold" | "erase" | "type" = "hold";
+    let holdUntil = performance.now() + 3400;
+    const id = setInterval(() => {
+      if (document.hidden) return;
+      const now = performance.now();
+      if (phase === "hold") {
+        if (now < holdUntil) return;
+        phase = "erase";
+        return;
+      }
+      if (phase === "erase") {
+        ci -= 2;
+        if (ci <= 0) {
+          ci = 0;
+          li = (li + 1) % SUB_LINES.length;
+          phase = "type";
+        }
+        text.textContent = SUB_LINES[li].slice(0, ci);
+        return;
+      }
+      ci += 1;
+      if (ci >= SUB_LINES[li].length) {
+        ci = SUB_LINES[li].length;
+        phase = "hold";
+        holdUntil = now + 3400;
+      }
+      text.textContent = SUB_LINES[li].slice(0, ci);
+    }, 45);
+    return () => clearInterval(id);
+  }, [entered]);
 
   function openInbox() {
     const raw = local.trim().toLowerCase();
@@ -223,19 +408,49 @@ export default function Home() {
   }
 
   return (
-    <main className="stage">
-      <header>
-        <p className="eyebrow">▓▒░ temporary mail by zanara</p>
-        <h1 className="title">
-          TMAIL<span className="dot">.</span>ZANARA<span className="caret">_</span>
-        </h1>
-        <p className="sub">
-          Disposable inboxes on domains you own. No signup, no password, open source. Every
-          message is wiped at 01:00 WIB (18:00 UTC).
-        </p>
-      </header>
+    <>
+      {!entered && (
+        <div id="boot" ref={bootRef} aria-hidden="true">
+          <div className="boot-inner">
+            <div className="boot-line">
+              <span ref={wordRef}>booting tmail</span>
+              <span ref={pctRef}>0%</span>
+            </div>
+            <div className="boot-bar">
+              <i ref={barRef} />
+            </div>
+          </div>
+        </div>
+      )}
 
-      <section className="card" aria-label="Mailbox">
+      <main className="stage">
+        <header>
+          <p className="eyebrow">▓▒░ temporary mail by zanara</p>
+          <div className="brand">
+            {/* eslint-disable-next-line @next/next/no-img-element -- logo statis di public */}
+            <img className="logo" src="/logo.svg" alt="Tmail Zanara" width={42} height={42} />
+            <h1 className="title" ref={titleRef} aria-label="TMAIL.ZANARA">
+              {Array.from(TITLE).map((ch, i) => (
+                <span key={i} className={ch === "." ? "ch dot" : "ch"} aria-hidden="true">
+                  {ch}
+                </span>
+              ))}
+              <span className="ch caret" aria-hidden="true">_</span>
+            </h1>
+          </div>
+          <p className="sub" ref={subRef}>
+            {SUB_LINES[0]}
+            <span className="type-caret" aria-hidden="true">▌</span>
+          </p>
+        </header>
+
+      <section
+        className="card reveal"
+        aria-label="Mailbox"
+        ref={(el) => {
+          revealRefs.current[0] = el;
+        }}
+      >
         <h2 className="card-title">mailbox</h2>
         <div className="row">
           <input
@@ -356,7 +571,13 @@ export default function Home() {
         )}
       </section>
 
-      <section className="card" aria-label="Domains">
+      <section
+        className="card reveal"
+        aria-label="Domains"
+        ref={(el) => {
+          revealRefs.current[1] = el;
+        }}
+      >
         <h2 className="card-title">domains</h2>
         {activeDomains.length > 0 ? (
           <ul className="chips">
@@ -445,13 +666,19 @@ export default function Home() {
         )}
       </section>
 
-      <footer className="footer">
+      <footer
+        className="footer reveal"
+        ref={(el) => {
+          revealRefs.current[2] = el;
+        }}
+      >
         <span>
           open source · <a href="https://github.com/khezan10/tmail-zanara">github</a> ·{" "}
           <a href="/docs">domain setup</a>
         </span>
         <span>messages deleted daily 01:00 WIB</span>
       </footer>
-    </main>
+      </main>
+    </>
   );
 }

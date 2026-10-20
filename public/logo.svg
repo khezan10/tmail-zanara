@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" role="img" aria-label="Tmail Zanara">
+  <rect x="3.25" y="9.25" width="33.5" height="21.5" rx="3.5" stroke="#b4ff2b" stroke-width="1.8"/>
+  <path d="M4.5 11.5 20 22.2 35.5 11.5" stroke="#b4ff2b" stroke-width="1.8" stroke-linejoin="round"/>
+  <path d="M11 26.5h6.5" stroke="#b4ff2b" stroke-width="1.8" stroke-linecap="square"/>
+  <rect x="24.5" y="24.2" width="5" height="4.6" fill="#b4ff2b" opacity="0.9"/>
+</svg>
