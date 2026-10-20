@@ -1,7 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { randomIdentity, type Identity } from "@/lib/names";
+import {
+  composeIdentity,
+  randomIdentity,
+  randomPick,
+  type Identity,
+  type NameSeed,
+} from "@/lib/names";
 
 type Domain = { domain: string; status: string; verifiedAt?: string };
 type Message = {
@@ -43,6 +49,29 @@ const SUB_LINES = [
 ];
 
 const BOOT_WORDS = ["booting tmail", "loading fonts", "syncing inbox", "ready"];
+
+// Katalog dari MongoDB, ditarik sekali per sesi. Klik random tetap instan.
+let remoteCatalog: { roots: NameSeed[]; epithets: NameSeed[] } | null = null;
+let remoteLoading: Promise<void> | null = null;
+
+function loadRemoteCatalog(): Promise<void> {
+  if (remoteCatalog || remoteLoading) return remoteLoading ?? Promise.resolve();
+  remoteLoading = (async () => {
+    try {
+      const res = await fetch("/api/names?full=1");
+      if (!res.ok) return;
+      const data = (await res.json()) as { roots?: NameSeed[]; epithets?: NameSeed[] };
+      if (Array.isArray(data.roots) && data.roots.length > 0 && Array.isArray(data.epithets)) {
+        remoteCatalog = { roots: data.roots, epithets: data.epithets };
+      }
+    } catch {
+      // biarkan katalog lokal yang dipakai
+    } finally {
+      remoteLoading = null;
+    }
+  })();
+  return remoteLoading;
+}
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -101,6 +130,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    void loadRemoteCatalog();
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- nama acak sekali setelah fetch domain
     void loadDomains().then(() => {
@@ -112,19 +145,18 @@ export default function Home() {
     };
   }, [loadDomains]);
 
-  // Nama diambil dari katalog MongoDB; kalau DB tidak siap, jatuh ke katalog lokal.
-  async function newIdentity() {
+  // Pakai katalog MongoDB kalau sudah termuat; kalau belum, katalog lokal (instan).
+  function newIdentity() {
     setError("");
-    try {
-      const res = await fetch("/api/names/random", { cache: "no-store" });
-      if (!res.ok) throw new Error("FALLBACK");
-      const data = (await res.json()) as Identity;
-      setLocal("");
-      setSeed(data);
-    } catch {
-      setLocal("");
+    setLocal("");
+    if (remoteCatalog) {
+      const { roots, epithets } = remoteCatalog;
+      const epithet = epithets.length > 0 && randomPick([false, true]) ? randomPick(epithets) : undefined;
+      setSeed(composeIdentity(randomPick(roots), epithet));
+    } else {
       setSeed(randomIdentity());
     }
+    void loadRemoteCatalog();
   }
 
   const loadMessages = useCallback(async (addr: string) => {

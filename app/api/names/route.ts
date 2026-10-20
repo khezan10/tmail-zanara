@@ -2,10 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/mongodb";
 import { invalidateCatalog, loadCatalog, type NameDoc } from "@/lib/namesStore";
 
-/** GET /api/names — jumlah akar & epithet di katalog. */
-export async function GET() {
+/**
+ * GET /api/names — jumlah akar & epithet.
+ * GET /api/names?full=1 — seluruh katalog (dipakai browser sekali per sesi, di-cache CDN).
+ */
+export async function GET(req: NextRequest) {
   try {
     const { roots, epithets } = await loadCatalog();
+    if (req.nextUrl.searchParams.get("full") === "1") {
+      return NextResponse.json(
+        { roots, epithets },
+        { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } }
+      );
+    }
     return NextResponse.json(
       { roots: roots.length, epithets: epithets.length, total: roots.length + epithets.length },
       { headers: { "Cache-Control": "no-store" } }
