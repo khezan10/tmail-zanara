@@ -16,8 +16,16 @@ Live: <https://tmail.mzg.my.id> · docs: <https://tmail.mzg.my.id/docs>
   Email Worker forwards each message to `/api/inbound`.
 - **Live inbox** — polling every 6 seconds, HTML rendered inside a sandboxed iframe.
 - **Meaningful random names** — every new inbox is named from a Greek root (philosophy, science,
-  myth, place) plus a 10-character code, e.g. `anthropos_aiue983hnf`, with the etymology shown
-  under the field.
+  myth, place), optionally joined with a Greek epithet, plus a 10-character code, e.g.
+  `anthropos_aiue983hnf` or `hippokrates_barys_crbow2v88w`. The etymology is shown under the field.
+  The catalogue lives in MongoDB (`names`) with 210 roots × 60 epithets = 12,810 base names,
+  and can grow without a redeploy:
+
+  ```bash
+  curl -X POST https://tmail.mzg.my.id/api/names \
+    -H "authorization: Bearer $CRON_SECRET" -H "content-type: application/json" \
+    -d '{"word":"koinonia","meaning":"community, fellowship","origin":"greek"}'
+  ```
 - **Nightly wipe** — Vercel Cron calls `/api/cron/purge` at 01:00 WIB and deletes
   every stored message.
 - **Open** — no login. Inboxes are addressed by `name@domain`; anyone with the

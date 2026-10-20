@@ -112,10 +112,19 @@ export default function Home() {
     };
   }, [loadDomains]);
 
-  function newIdentity() {
-    setLocal("");
-    setSeed(randomIdentity());
+  // Nama diambil dari katalog MongoDB; kalau DB tidak siap, jatuh ke katalog lokal.
+  async function newIdentity() {
     setError("");
+    try {
+      const res = await fetch("/api/names/random", { cache: "no-store" });
+      if (!res.ok) throw new Error("FALLBACK");
+      const data = (await res.json()) as Identity;
+      setLocal("");
+      setSeed(data);
+    } catch {
+      setLocal("");
+      setSeed(randomIdentity());
+    }
   }
 
   const loadMessages = useCallback(async (addr: string) => {

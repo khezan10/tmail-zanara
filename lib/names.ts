@@ -318,13 +318,23 @@ function randomIndex(max: number): number {
 }
 
 /** `word_suffix` + makna etimologisnya. */
-export function randomIdentity(seed?: NameSeed): Identity {
-  const root = seed ?? NAME_SEEDS[randomIndex(NAME_SEEDS.length)];
+/** Gabungkan akar + (opsional) epithet + sufiks 10 karakter. */
+export function composeIdentity(root: NameSeed, epithet?: NameSeed): Identity {
   const suffix = randomSuffix();
-  // ~55% memakai epithet: 200+ akar x 60 julukan = >12.000 basis, plus sufiks 36^10.
-  const epithet = randomIndex(100) < 55 ? EPITHETS[randomIndex(EPITHETS.length)] : undefined;
   const base = epithet ? `${root.word}_${epithet.word}` : root.word;
   return { ...root, suffix, epithet, local: `${base}_${suffix}` };
+}
+
+export function randomIdentity(seed?: NameSeed): Identity {
+  const root = seed ?? NAME_SEEDS[randomIndex(NAME_SEEDS.length)];
+  // ~55% memakai epithet: 210 akar x 60 julukan = 12.810 basis, plus sufiks 36^10.
+  const epithet = randomIndex(100) < 55 ? EPITHETS[randomIndex(EPITHETS.length)] : undefined;
+  return composeIdentity(root, epithet);
+}
+
+/** Pilih indeks acak dengan crypto (bukan Math.random). */
+export function randomPick<T>(items: T[]): T {
+  return items[randomIndex(items.length)];
 }
 
 /** Cari seed berdasarkan kata (tanpa sufiks). */
