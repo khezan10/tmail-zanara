@@ -16,7 +16,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      # npm ci menolak lock yang dibuat di Windows (paket optional @emnapi hilang)
+      - run: npm install --no-audit --no-fund
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
