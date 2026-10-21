@@ -179,14 +179,14 @@ select.field {
 }
 
 .meta {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: var(--muted);
   letter-spacing: 0.06em;
 }
 
 .name-note {
   margin: 10px 0 0;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   color: var(--muted);
   letter-spacing: 0.02em;
 }
@@ -236,7 +236,7 @@ select.field {
 .item-time {
   grid-column: 2;
   grid-row: 1;
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   color: var(--muted);
   white-space: nowrap;
 }
@@ -244,7 +244,7 @@ select.field {
 .item-preview {
   grid-column: 1 / -1;
   grid-row: 2;
-  font-size: 0.74rem;
+  font-size: 0.8rem;
   color: var(--muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -406,8 +406,14 @@ select.field {
   56%, 100% { opacity: 0; }
 }
 
-@media (max-width: 560px) {
+/* ── Unified responsive system ──────────────────────────────────────
+   mobile  <= 640px   |   tablet 641..1024px   |   desktop > 1024px
+   Shared with downloadin-ya and shortlink-website. */
+
+/* Mobile */
+@media (max-width: 640px) {
   .stage {
+    width: min(760px, calc(100% - 40px));
     padding: 32px 0 64px;
     gap: 28px;
   }
@@ -423,6 +429,38 @@ select.field {
   .logo {
     width: 32px;
     height: 32px;
+  }
+
+  /* Touch targets: 44px floor for anything a finger has to hit. */
+  .btn,
+  .btn.small {
+    min-height: 44px;
+  }
+
+  .item {
+    min-height: 44px;
+  }
+
+  .field {
+    min-height: 44px;
+  }
+
+  .footer a {
+    display: inline-block;
+    padding: 6px 2px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .stage {
+    width: min(760px, calc(100% - 64px));
+    padding: 40px 0 72px;
+    gap: 34px;
+  }
+
+  .viewer-html {
+    height: 420px;
   }
 }
 
