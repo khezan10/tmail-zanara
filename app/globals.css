@@ -431,7 +431,17 @@ select.field {
     height: 32px;
   }
 
-  /* Touch targets: 44px floor for anything a finger has to hit. */
+  .btn {
+    min-height: 48px;
+  }
+
+  .btn.small {
+    min-height: 44px;
+  }
+}
+
+/* Touch range: anything a finger has to hit gets a 44px floor. */
+@media (max-width: 1024px) {
   .btn {
     min-height: 48px;
   }
@@ -446,11 +456,6 @@ select.field {
 
   .field {
     min-height: 44px;
-  }
-
-  .footer a {
-    display: inline-block;
-    padding: 6px 2px;
   }
 }
 
@@ -584,4 +589,12 @@ select.field {
     transform: translateX(-1px);
   }
   95% { text-shadow: none; transform: none; }
+}
+
+/* Footer links: always a 44px hit area, on every viewport. */
+.footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
 }
