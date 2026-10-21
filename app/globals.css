@@ -41,7 +41,7 @@ a {
 
 .eyebrow {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.32em;
   color: var(--lime);
 }
@@ -84,7 +84,7 @@ a {
 
 .card-title {
   margin: 0 0 14px;
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   letter-spacing: 0.3em;
   color: var(--lime);
 }
@@ -322,7 +322,7 @@ select.field {
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 4px 10px;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 
@@ -351,7 +351,7 @@ select.field {
   color: var(--muted);
   font-weight: 400;
   letter-spacing: 0.1em;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   text-transform: uppercase;
 }
 
@@ -367,7 +367,7 @@ select.field {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted);
@@ -397,7 +397,7 @@ select.field {
   flex-wrap: wrap;
   gap: 12px;
   justify-content: space-between;
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   color: var(--muted);
 }
 
@@ -432,7 +432,10 @@ select.field {
   }
 
   /* Touch targets: 44px floor for anything a finger has to hit. */
-  .btn,
+  .btn {
+    min-height: 48px;
+  }
+
   .btn.small {
     min-height: 44px;
   }
@@ -483,7 +486,7 @@ select.field {
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.24em;
   color: var(--muted);
 }
