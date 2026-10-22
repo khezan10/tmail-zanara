@@ -474,7 +474,7 @@ export default function Home() {
         <header>
           <p className="eyebrow">▓▒░ temporary mail by zanara</p>
           <div className="brand">
-            {/* eslint-disable-next-line @next/next/no-img-element -- logo statis di public */}
+            {/* logo statis di public/ — purposefully a plain <img>, not next/image */}
             <img className="logo" src="/logo.svg" alt="Tmail Zanara" width={42} height={42} />
             <h1 className="title" ref={titleRef} aria-label="TMAIL.ZANARA">
               {Array.from(TITLE).map((ch, i) => (

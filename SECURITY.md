@@ -1,30 +1,27 @@
-# Security
+# Security Policy
 
-Tmail Zanara is a disposable-mail service: inboxes are public by design. Please
-keep that in mind before reporting an issue.
+## Supported versions
 
-## Reporting
+| Version | Supported |
+|---------|-----------|
+| 1.x     | yes       |
 
-Email **contact@mzg.my.id** with the details and a reproduction. Do not open a
-public issue for anything that could be abused.
+## Reporting a vulnerability
 
-## In scope
+Please do **not** open a public issue for a security problem.
 
-- Reading another user's inbox without knowing the address (e.g. enumeration).
-- Bypassing the `INBOUND_SECRET` on `/api/inbound`.
-- SSRF, injection, or remote code execution in the Next.js routes.
-- Stored XSS through message bodies (HTML is rendered inside a sandboxed iframe —
-  escaping sandbox=`""` would be a bug).
-- Rate-limit bypass that allows mass domain registration.
+Use GitHub's private reporting: **Security → Report a vulnerability**, or email
+the maintainer. Include what the issue is, the steps to reproduce it, and the
+impact you believe it has. Expect a first response within 72 hours.
 
-## Out of scope
+## What this project does and does not do with your data
 
-- Anyone reading an inbox whose address they already know.
-- Spam or phishing delivered to a temporary address.
-- Denial of service through bulk signups on free-tier infrastructure.
-
-## Handling of data
-
-- Messages are deleted every night at 01:00 WIB by a Vercel Cron job.
-- Rate limiting stores only a salted SHA-256 of the client IP.
-- No accounts, no cookies, no analytics.
+- The service is **open by design**: a short link, a temporary inbox, a
+  project list — none of them need an account.
+- IP addresses are **hashed with a salt** before they are stored, never stored
+  in the clear.
+- Only the application data is stored, in MongoDB. Nothing is shared with a
+  third party.
+- Secrets are read from the environment. They are never committed —
+  `.env.local` is in `.gitignore`, and a CI job fails the build if a
+  credential reaches a commit.

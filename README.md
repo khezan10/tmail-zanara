@@ -5,6 +5,10 @@ accounts, no passwords — and every message is wiped at **01:00 WIB (18:00 UTC)
 
 Live: <https://tmail.mzg.my.id> · docs: <https://tmail.mzg.my.id/docs>
 
+[![CI](https://github.com/khezan10/tmail-zanara/actions/workflows/ci.yml/badge.svg)](https://github.com/khezan10/tmail-zanara/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/khezan10/tmail-zanara.svg)](https://github.com/khezan10/tmail-zanara/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-b4ff2b.svg)](LICENSE)
+
 > Use it for signups, OTPs, and one-off verifications. Never for banking or account
 > recovery — inboxes are public to anyone who knows the address.
 
@@ -113,6 +117,24 @@ Full walkthrough: [`docs/CLOUDFLARE.md`](docs/CLOUDFLARE.md).
 - `dependabot-auto-merge.yml` enables auto-merge, so a green PR merges itself.
 - `self-heal.yml` redeploys production when the latest Vercel build failed or the
   health endpoint is down.
+
+## Checks
+
+```bash
+npm run check      # lint + typecheck + unit tests + production build
+```
+
+`npm run lint`, `npm run typecheck` and `npm test` also run on their own. CI
+runs exactly the same command on Node 20 and Node 22.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Security
+
+Report a vulnerability privately — see [SECURITY.md](SECURITY.md).
+
 
 ## License
 
