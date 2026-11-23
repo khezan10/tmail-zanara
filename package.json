@@ -12,7 +12,7 @@
     "check": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
-    "mongodb": "^7.9.0",
+    "mongodb": "^7.9.1",
     "next": "16.4.6",
     "postal-mime": "^4.2.1",
     "react": "19.3.1",
@@ -31,8 +31,8 @@
     "globals": "^15.15.0",
     "tailwindcss": "^4",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.72.2",
-    "vitest": "^5.1.0"
+    "typescript-eslint": "^8.73.0",
+    "vitest": "^5.1.1"
   },
   "license": "MIT",
   "author": "Khezan Amartya",
